@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Blog Studio</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body
+  class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 font-sans antialiased flex flex-col">
+  <!-- Navbar -->
+  <nav class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div
+          class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-sky-400 to-emerald-400 shadow-lg shadow-indigo-500/40">
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Studio</p>
+          <h1 class="text-lg font-semibold tracking-tight">AI Blog Studio</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        <span class="hidden sm:inline text-slate-400">Signed in as <span class="font-medium text-slate-100">{{user.username }}</span></span>
+        <a href="{% url 'blog-list' %}"
+          class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-700/80 bg-slate-900/70 text-slate-100 hover:bg-slate-800 transition">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+          <span>Saved content</span>
+        </a>
+        <a href="{% url 'logout' %}"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-700/80 text-slate-300 hover:bg-slate-900 transition">
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="flex-1">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 lg:py-14">
+      <div class="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.2fr)] gap-8 lg:gap-10 items-start">
+
+        <!-- Left: Input Form -->
+        <section
+          class="bg-slate-950/60 border border-slate-800/80 rounded-3xl shadow-[0_18px_60px_rgba(15,23,42,0.9)] p-6 sm:p-7 lg:p-8 space-y-6">
+          <header class="space-y-2">
+            <p
+              class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300 ring-1 ring-emerald-500/30">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Topic → Blog, SEO & Social
+            </p>
+            <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Turn a topic into a full content pack</h2>
+            <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+              Describe the topic you want to write about and we'll generate a polished blog post, SEO title & meta
+              description,
+              TL;DR, outline, key takeaways, tweet ideas, and a LinkedIn post.
+            </p>
+          </header>
+
+          {% if error %}
+          <div class="rounded-xl border border-red-500/50 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {{ error }}
+          </div>
+          {% endif %}
+
+          <form method="POST" action="" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="space-y-2">
+              <label for="title" class="text-sm font-medium text-slate-200">Working title (optional)</label>
+              <input id="title" name="title" type="text" value="{{ title|default:'' }}"
+                placeholder="e.g. 'A practical guide to shipping API integrations faster'"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400/60 transition">
+            </div>
+
+            <div class="space-y-2">
+              <label for="topic" class="text-sm font-medium text-slate-200 flex items-center justify-between">
+                <span>Topic & context</span>
+                <span class="text-xs text-slate-500">What should this blog be about?</span>
+              </label>
+              <textarea id="topic" name="topic" rows="7" required
+                placeholder="Describe the topic, target audience, and what you want the reader to learn. For example: 'I want a blog post that teaches early-stage SaaS founders how to prioritize their product roadmap without overbuilding. Focus on simple frameworks, examples, and practical steps.'"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-50 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-400/60 transition resize-y min-h-[160px]">{{ topic|default:'' }}</textarea>
+              <p class="text-xs text-slate-500">
+                Tip: A few clear sentences about the topic and audience is enough. Be specific about the angle you care
+                about.
+              </p>
+            </div>
+
+            <button type="submit" id="submitBtn"
+              class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 sm:px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-400 active:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/80 disabled:opacity-60 disabled:cursor-wait transition">
+              <span id="spinner"
+                class="hidden h-4 w-4 border-2 border-emerald-900 border-t-transparent rounded-full animate-spin"></span>
+              <span>Generate content pack</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Right: Output -->
+        <section class="space-y-4 lg:space-y-5">
+          <div
+            class="bg-slate-950/60 border border-slate-800/80 rounded-3xl shadow-[0_18px_60px_rgba(15,23,42,0.9)] p-5 sm:p-6 lg:p-7">
+            {% if pack %}
+            <div class="space-y-5 text-sm leading-relaxed">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h2 class="text-sm font-semibold tracking-wide text-slate-300 uppercase">Generated content</h2>
+                  <p class="text-xs text-slate-500">Blog, SEO and social content tailored to your topic.</p>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">SEO title</h3>
+                <p class="text-sm text-slate-100">{{ pack.seo_title }}</p>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">Meta description</h3>
+                <p class="text-sm text-slate-100">{{ pack.meta_description }}</p>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">TL;DR</h3>
+                <p class="text-sm text-slate-100 whitespace-pre-line">{{ pack.tldr }}</p>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-2">Outline</h3>
+                <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+                  {% for item in pack.outline %}
+                  <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-2">Key takeaways</h3>
+                <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+                  {% for item in pack.key_takeaways %}
+                  <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-2">Tweet / thread ideas</h3>
+                <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+                  {% for item in pack.tweets %}
+                  <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">LinkedIn post</h3>
+                <p class="text-sm text-slate-100 whitespace-pre-line">{{ pack.linkedin_post }}</p>
+              </div>
+
+              <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+                <h3 class="text-sm font-semibold text-slate-200 mb-1">Blog post</h3>
+                <p class="text-sm leading-relaxed text-slate-100 whitespace-pre-line">{{ pack.blog_post }}</p>
+              </div>
+
+              <!-- Save Form -->
+              <form method="POST" action="{% url 'save-blog' %}" class="pt-2">
+                {% csrf_token %}
+                <input type="hidden" name="title" value="{{ title|default:'' }}">
+                <input type="hidden" name="topic" value="{{ topic|default:'' }}">
+                <input type="hidden" name="blog_post" value="{{ pack.blog_post }}">
+                <input type="hidden" name="seo_title" value="{{ pack.seo_title }}">
+                <input type="hidden" name="meta_description" value="{{ pack.meta_description }}">
+                <input type="hidden" name="tldr" value="{{ pack.tldr }}">
+                <input type="hidden" name="linkedin_post" value="{{ pack.linkedin_post }}">
+                <input type="hidden" name="tweets" value="{{ pack_json.tweets_json }}">
+                <input type="hidden" name="outline" value="{{ pack_json.outline_json }}">
+                <input type="hidden" name="key_takeaways" value="{{ pack_json.key_takeaways_json }}">
+                <button type="submit"
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-400 transition">
+                  Save to library
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-6 gap-3 text-center min-h-[280px]">
+              <div
+                class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900/80 border border-slate-700/80">
+                <span class="h-2.5 w-2.5 rounded-full bg-slate-500"></span>
+              </div>
+              <div class="space-y-1 max-w-sm">
+                <p class="text-sm font-medium text-slate-200">No content yet</p>
+                <p class="text-xs text-slate-500">
+                  Start by describing a topic on the left. Your full content pack will appear here when it's ready.
+                </p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800/80 bg-slate-950/90">
+    <div
+      class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p>Built for exploring AI-assisted writing workflows.</p>
+      <p class="flex items-center gap-1">
+        <span class="hidden sm:inline">Your drafts live locally in your account.</span>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Minimal JS: just disable button on generate form submit
+    const generateForm = document.querySelector('form[action=""]');
+    if (generateForm) {
+      generateForm.addEventListener('submit', function () {
+        const btn = document.getElementById('submitBtn');
+        const spinner = document.getElementById('spinner');
+        if (btn && spinner) {
+          btn.disabled = true;
+          spinner.classList.remove('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

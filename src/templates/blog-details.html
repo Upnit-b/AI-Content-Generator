@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Pack · AI Blog Studio</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body
+  class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div
+          class="h-8 w-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-sky-400 to-emerald-400 shadow-lg shadow-indigo-500/40">
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Studio</p>
+          <h1 class="text-lg font-semibold tracking-tight text-slate-50">AI Blog Studio</h1>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-xs sm:text-sm text-slate-300">
+        <span class="hidden sm:inline">Signed in as <span class="font-medium text-slate-50">{{ user.username
+            }}</span></span>
+        <a href="/" class="hover:text-white">New topic</a>
+        <a href="{% url 'blog-list' %}" class="hover:text-white">Saved content</a>
+        <a href="{% url 'logout' %}"
+          class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-slate-700/80 hover:bg-slate-900 transition">
+          Logout
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-1">
+    <div class="max-w-4xl mx-auto mt-10 px-4 sm:px-6 pb-10">
+      <div
+        class="bg-slate-950/80 border border-slate-800/80 rounded-3xl shadow-[0_18px_60px_rgba(15,23,42,0.9)] p-6 sm:p-8 space-y-6 text-slate-50">
+
+        <section class="space-y-2">
+          <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">{{ blog_article_detail.title|default:"Untitled
+            content pack" }}</h2>
+          <p class="text-xs text-slate-500">Created {{ blog_article_detail.created_at }}</p>
+        </section>
+
+        <section class="grid md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-1">
+            <h3 class="text-sm font-semibold text-slate-200">SEO title</h3>
+            <p class="text-sm">{{ blog_article_detail.seo_title }}</p>
+          </div>
+          <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-1">
+            <h3 class="text-sm font-semibold text-slate-200">Meta description</h3>
+            <p class="text-sm">{{ blog_article_detail.meta_description }}</p>
+          </div>
+        </section>
+
+        <section class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+          <h3 class="text-sm font-semibold text-slate-200">TL;DR</h3>
+          <p class="whitespace-pre-line text-sm text-slate-100">{{ blog_article_detail.tldr }}</p>
+        </section>
+
+        <section class="grid md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+            <h3 class="text-sm font-semibold text-slate-200">Outline</h3>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+              {% for item in blog_article_detail.outline %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+            <h3 class="text-sm font-semibold text-slate-200">Key takeaways</h3>
+            <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+              {% for item in blog_article_detail.key_takeaways %}
+              <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </section>
+
+        <section class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+          <h3 class="text-sm font-semibold text-slate-200">Tweet / thread ideas</h3>
+          <ul class="list-disc pl-6 space-y-1 text-sm text-slate-100">
+            {% for item in blog_article_detail.tweets %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <section class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+          <h3 class="text-sm font-semibold text-slate-200">LinkedIn post</h3>
+          <p class="whitespace-pre-line text-sm text-slate-100">{{ blog_article_detail.linkedin_post }}</p>
+        </section>
+
+        <section class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70 space-y-2">
+          <h3 class="text-sm font-semibold text-slate-200">Blog post</h3>
+          <p class="whitespace-pre-line leading-relaxed text-sm text-slate-100">{{ blog_article_detail.blog_post }}</p>
+        </section>
+
+        <details class="p-4 rounded-2xl border border-slate-800 bg-slate-950/70">
+          <summary class="cursor-pointer text-sm font-semibold text-slate-200">Original topic / notes (click to expand)
+          </summary>
+          <pre class="whitespace-pre-wrap text-xs mt-3 text-slate-300">{{ blog_article_detail.transcript }}</pre>
+        </details>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800/80 bg-slate-950/90">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 text-xs text-slate-500 text-center">
+      Saved locally in your AI Blog Studio workspace.
+    </div>
+  </footer>
+</body>
+
+</html>
